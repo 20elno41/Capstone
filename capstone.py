@@ -14,10 +14,10 @@ class Player(spgl.Sprite):
 # Create Functions
 
 # Initial Game setup
-game = spgl.Game(800, 600, "black", "???? by Elno", 0)
+game = spgl.Game(800, 600, "black", "Ball Killer by Elno", 0)
 
 # Create Sprites
-player = Player("triangle", "green", 0, 0)
+player = Player("triangle", "red", 0, 0)
 
 
 # Create Labels
