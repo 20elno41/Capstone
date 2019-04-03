@@ -10,15 +10,24 @@ import spgl
 class Player(spgl.Sprite):
     def __init__(self, shape, color, x, y):
         spgl.Sprite.__init__(self, shape, color, x, y)
+        
+class Goal(spgl.Sprite):
+    def __init__(self, shape, color, x, y):
+        spgl.Sprite.__init__(self, shape, color, x, y)
+        
+class Ball(spgl.Sprite):
+    def __init__(self, shape, color, x, y):
+        spgl.Sprite.__init__(self, shape, color, x, y)
 
 # Create Functions
 
 # Initial Game setup
-game = spgl.Game(800, 600, "black", "Ball Killer by Elno", 0)
+game = spgl.Game(800, 600, "black", "Rainbow Pop by Elno", 0)
 
 # Create Sprites
-player = Player("triangle", "red", 0, 0)
-
+player = Player("triangle", "green", 0, 0)
+goal = Goal("square", "red", 50, -100)
+ball = Ball("circle", "white", -387, 50)
 
 # Create Labels
 
