@@ -9,6 +9,13 @@ import math
 import random
 
 # Create Classes
+class RainbowPop(spgl.Game):
+	def __init__(self, x, y, color, title, seconds):
+		spgl.Game.__init__(self, x, y, color, title, seconds)
+		
+	def click(self, x, y):
+		shooting_ball.shoot()
+
 class Player(spgl.Sprite):
     def __init__(self, shape, color, x, y):
         spgl.Sprite.__init__(self, shape, color, x, y)
@@ -28,6 +35,7 @@ class Player(spgl.Sprite):
 class Goal(spgl.Sprite):
     def __init__(self, shape, color, x, y):
         spgl.Sprite.__init__(self, shape, color, x, y)
+        self.resizemode("auto")
         
 class Ball(spgl.Sprite):
     def __init__(self, shape, color, x, y):
@@ -45,10 +53,10 @@ class Ball(spgl.Sprite):
     		return True
     	else:
     		return False
-    		        
+
     # Move the ball
     def move(self):
-    	self.forward(4)
+    	self.forward(2)
     	
     	# Check for collisions 
     	if self.is_near(self.xcor(), self.ycor(), 250, 200):
@@ -69,15 +77,34 @@ class Ball(spgl.Sprite):
     	elif self.is_near(self.xcor(), self.ycor(), 160, -100):
     		self.goto(150, -100)
     
+class ShootingBall(Ball):
+	def __init__(self, shape, color, x, y):
+		Ball.__init__(self, shape, color, x, y)
+	
+	def shoot(self):
+		self.goto(0, 0)
+		self.setheading(player.heading())
+		
+	def move(self):	
+		self.forward(5)
+		
+	def tick(self):
+		self.move()
+		
+	# Check for collisions	
+	
+	
 # Create Functions
 
 # Initial Game setup
-game = spgl.Game(800, 600, "black", "Rainbow Pop by Elno", 0)
+game = RainbowPop(800, 600, "black", "Rainbow Pop by Elno", 0)
+game.frame = 1
 
 # Create Sprites
-player = Player("arrow", "green", 0, 0)
+player = Player("arrow", "white", 0, 0)
 goal = Goal("square", "red", 150, -100)
 ball = Ball("circle", "white", -387, 200)
+shooting_ball = ShootingBall("circle", "white", 0, 50)
 
 balls = [ball]
 
@@ -88,13 +115,19 @@ canvas = spgl.turtle.getcanvas()
 canvas.bind('<Motion>', player.motion)
 
 while True:
+	game_over = False
+	
 	# Call the game tick method
 	game.tick()
 	for ball in balls:
 		ball.move()
-		
+	
 	# Add a new ball
-	if random.randint(0, 1000) > 990:	
+	if game.frame % 11 == 0:	
 		ball = Ball("circle", "white", -387, 200)
 		balls.append(ball)
+	game.frame += 1
     
+    # Game over
+	if game_over:
+		break
