@@ -41,12 +41,11 @@ class Ball(spgl.Sprite):
     def __init__(self, shape, color, x, y):
         spgl.Sprite.__init__(self, shape, color, x, y)
         self.setheading(0)
-        
+    
         colors = ["blue", "green", "purple", "orange"]
         color = random.choice(colors)
         self.color(color)
-
-
+        	
     def is_near(self, x1, y1, x2, y2):
     	d = math.sqrt((x1-x2) ** 2 + (y1-y2) ** 2)
     	if d < 20:
@@ -80,19 +79,16 @@ class Ball(spgl.Sprite):
 class ShootingBall(Ball):
 	def __init__(self, shape, color, x, y):
 		Ball.__init__(self, shape, color, x, y)
-	
+        
 	def shoot(self):
 		self.goto(0, 0)
 		self.setheading(player.heading())
 		
 	def move(self):	
-		self.forward(5)
+		self.forward(8)
 		
 	def tick(self):
 		self.move()
-		
-	# Check for collisions	
-	
 	
 # Create Functions
 
@@ -114,20 +110,33 @@ balls = [ball]
 canvas = spgl.turtle.getcanvas()
 canvas.bind('<Motion>', player.motion)
 
+game_over = False
+level_complete = False
+
 while True:
-	game_over = False
-	
 	# Call the game tick method
 	game.tick()
 	for ball in balls:
 		ball.move()
-	
+		
+		# Check if a ball hits the goal
+		if game.is_collision(ball, goal):
+			game_over = True
+		
+		# Check for collision with the shooting ball
+		if game.is_collision(shooting_ball, ball) and shooting_ball.color() == ball.color():
+			ball.hideturtle()
+
 	# Add a new ball
-	if game.frame % 11 == 0:	
+	if game.frame % 11 == 0 and game.frame <= 444:	
 		ball = Ball("circle", "white", -387, 200)
 		balls.append(ball)
 	game.frame += 1
-    
-    # Game over
-	if game_over:
+	
+	if game_over == True:
+		print("GAME OVER")
 		break
+	
+	if level_complete == True:
+		print("LEVEL COMPLETE")
+		continue
