@@ -15,11 +15,11 @@ class RainbowPop(spgl.Game):
 		
 	def click(self, x, y):
 		shooting_ball.shoot()
-
+		
 class Player(spgl.Sprite):
     def __init__(self, shape, color, x, y):
         spgl.Sprite.__init__(self, shape, color, x, y)
-        self.shapesize(stretch_wid=1, stretch_len=3, outline=None)
+        self.shapesize(stretch_wid = 1, stretch_len = 3, outline = None)
         
     def motion(self, event):
     	x1 = self.xcor()
@@ -35,7 +35,6 @@ class Player(spgl.Sprite):
 class Goal(spgl.Sprite):
     def __init__(self, shape, color, x, y):
         spgl.Sprite.__init__(self, shape, color, x, y)
-        self.resizemode("auto")
         
 class Ball(spgl.Sprite):
     def __init__(self, shape, color, x, y):
@@ -79,16 +78,28 @@ class Ball(spgl.Sprite):
 class ShootingBall(Ball):
 	def __init__(self, shape, color, x, y):
 		Ball.__init__(self, shape, color, x, y)
+		colors = ["blue", "green", "purple", "orange"]
+		color = random.choice(colors)
+		self.color(color)
+		self.state = "home"
         
 	def shoot(self):
-		self.goto(0, 0)
-		self.setheading(player.heading())
+		if self.state == "home":
+			self.goto(0, 0)
+			self.setheading(player.heading())
+			self.state = "move"
+		
+	def change_color(self):
+		colors = ["blue", "green", "purple", "orange"]
+		color = random.choice(colors)
+		self.color(color)
 		
 	def move(self):	
 		self.forward(8)
 		
 	def tick(self):
-		self.move()
+		if self.state == "move":
+			self.move()
 	
 # Create Functions
 
@@ -100,7 +111,7 @@ game.frame = 1
 player = Player("arrow", "white", 0, 0)
 goal = Goal("square", "red", 150, -100)
 ball = Ball("circle", "white", -387, 200)
-shooting_ball = ShootingBall("circle", "white", 0, 50)
+shooting_ball = ShootingBall("circle", "white", 0, 0)
 
 balls = [ball]
 
@@ -126,7 +137,21 @@ while True:
 		# Check for collision with the shooting ball
 		if game.is_collision(shooting_ball, ball) and shooting_ball.color() == ball.color():
 			ball.hideturtle()
-
+			balls.remove(ball)
+			
+			# Change shooting color
+			shooting_ball.change_color()
+			shooting_ball.goto(0,0)
+			shooting_ball.state = "home"
+			
+		# Check for collusion with the window
+		if game.is_collision(shooting_ball, game):
+			
+			# Change shooting color	
+			shooting_ball.change_color()
+			shooting_ball.goto(0,0)
+			shooting_ball.state = "home"
+			
 	# Add a new ball
 	if game.frame % 11 == 0 and game.frame <= 444:	
 		ball = Ball("circle", "white", -387, 200)
