@@ -8,11 +8,14 @@ import spgl
 import math
 import random
 
+score = 0
+
 # Create Classes
 class RainbowPop(spgl.Game):
 	def __init__(self, x, y, color, title, seconds):
 		spgl.Game.__init__(self, x, y, color, title, seconds)
-		
+		#self.write("Score: 0", align = "center", font = ("Courier", 24, "normal"))
+
 	def click(self, x, y):
 		shooting_ball.shoot()
 		
@@ -143,15 +146,18 @@ while True:
 			shooting_ball.change_color()
 			shooting_ball.goto(0,0)
 			shooting_ball.state = "home"
+		
+		elif game.is_collision(shooting_ball, ball) and shooting_ball.color() != ball.color():
+			score -= 10
 			
 		# Check for collusion with the window
-		if game.is_collision(shooting_ball, game):
+		#if game.is_collision(shooting_ball, game):
 			
 			# Change shooting color	
-			shooting_ball.change_color()
-			shooting_ball.goto(0,0)
-			shooting_ball.state = "home"
-			
+			#shooting_ball.change_color()
+			#shooting_ball.goto(0,0)
+			#shooting_ball.state = "home"
+	
 	# Add a new ball
 	if game.frame % 11 == 0 and game.frame <= 444:	
 		ball = Ball("circle", "white", -387, 200)
