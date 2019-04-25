@@ -11,11 +11,16 @@ import random
 score = 0
 
 # Create Classes
+class Pen(spgl.Sprite):
+	def __init__(self, shape, color, x, y):
+		spgl.Sprite.__init__(self, shape, color, x, y)
+		self.write("Score: 0", align = "center", font = ("Comic Sans", 24, "normal"))
+		self.hideturtle()
+
 class RainbowPop(spgl.Game):
 	def __init__(self, x, y, color, title, seconds):
 		spgl.Game.__init__(self, x, y, color, title, seconds)
-		#self.write("Score: 0", align = "center", font = ("Courier", 24, "normal"))
-
+		
 	def click(self, x, y):
 		shooting_ball.shoot()
 		
@@ -91,19 +96,35 @@ class ShootingBall(Ball):
 			self.goto(0, 0)
 			self.setheading(player.heading())
 			self.state = "move"
+			# self.play_sound("shooting.wav")
 		
 	def change_color(self):
-		colors = ["blue", "green", "purple", "orange"]
+		colors = ["blue"]
+		
+		for ball in balls:
+			colors.append(ball.color()[0])
+			
 		color = random.choice(colors)
 		self.color(color)
 		
 	def move(self):	
-		self.forward(8)
+		self.forward(15)
+		
+		# Check for border collision
+		if self.xcor() > game.SCREEN_WIDTH / 2 or self.xcor() < game.SCREEN_WIDTH / -2:
+			shooting_ball.change_color()
+			shooting_ball.goto(0,0)
+			shooting_ball.state = "home"
+			
+		if self.ycor() > game.SCREEN_WIDTH / 2 or self.ycor() < game.SCREEN_WIDTH / -2:
+			shooting_ball.change_color()
+			shooting_ball.goto(0,0)
+			shooting_ball.state = "home"
 		
 	def tick(self):
 		if self.state == "move":
 			self.move()
-	
+
 # Create Functions
 
 # Initial Game setup
@@ -111,14 +132,13 @@ game = RainbowPop(800, 600, "black", "Rainbow Pop by Elno", 0)
 game.frame = 1
 
 # Create Sprites
+scoreboard = Pen("square", "white", 0, 250)
 player = Player("arrow", "white", 0, 0)
 goal = Goal("square", "red", 150, -100)
 ball = Ball("circle", "white", -387, 200)
 shooting_ball = ShootingBall("circle", "white", 0, 0)
 
 balls = [ball]
-
-# Set Keyboard Bindings
 
 # Set Mouse Motion Bindings
 canvas = spgl.turtle.getcanvas()
@@ -139,6 +159,39 @@ while True:
 		
 		# Check for collision with the shooting ball
 		if game.is_collision(shooting_ball, ball) and shooting_ball.color() == ball.color():
+			
+			# Check for combos
+			index = balls.index(ball)
+			try:
+				next = balls[index + 1]
+			except:
+				pass
+				
+			try:
+				previous = balls[index - 1]
+			except:
+				pass
+			
+			try:
+				if ball.color()[0] == next.color()[0]:
+					balls.remove(next)
+					next.color("black")
+					next.hideturtle()
+					score += 20
+			except:
+				pass
+			
+			try:	
+				if ball.color()[0] == previous.color()[0]:
+					balls.remove(previous)
+					previous.color("black")
+					previous.hideturtle()
+					score += 20
+			except:
+				pass
+			
+			# Remove the ball from the screen 
+			ball.color("black")
 			ball.hideturtle()
 			balls.remove(ball)
 			
@@ -147,17 +200,11 @@ while True:
 			shooting_ball.goto(0,0)
 			shooting_ball.state = "home"
 		
-		elif game.is_collision(shooting_ball, ball) and shooting_ball.color() != ball.color():
-			score -= 10
-			
-		# Check for collusion with the window
-		#if game.is_collision(shooting_ball, game):
-			
-			# Change shooting color	
-			#shooting_ball.change_color()
-			#shooting_ball.goto(0,0)
-			#shooting_ball.state = "home"
-	
+			# Add score
+			score += 10
+			scoreboard.clear()
+			scoreboard.write("Score: {}".format(score), align = "center", font = ("Comic Sans", 24, "normal"))
+		
 	# Add a new ball
 	if game.frame % 11 == 0 and game.frame <= 444:	
 		ball = Ball("circle", "white", -387, 200)
