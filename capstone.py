@@ -96,7 +96,6 @@ class ShootingBall(Ball):
 			self.goto(0, 0)
 			self.setheading(player.heading())
 			self.state = "move"
-			# self.play_sound("shooting.wav")
 		
 	def change_color(self):
 		colors = ["blue"]
@@ -164,16 +163,30 @@ while True:
 			index = balls.index(ball)
 			try:
 				next = balls[index + 1]
+				game.play_sound("blop.wav")
+			except:
+				pass
+				
+			try:
+				next2 = balls[index + 2]
+				game.play_sound("blop.wav")
 			except:
 				pass
 				
 			try:
 				previous = balls[index - 1]
+				game.play_sound("blop.wav")
 			except:
 				pass
 			
 			try:
-				if ball.color()[0] == next.color()[0]:
+				previous2 = balls[index - 2]
+				game.play_sound("blop.wav")
+			except:
+				pass
+			
+			try:
+				if ball.color()[0] == next.color()[0] and ball.distance(next) < 25:
 					balls.remove(next)
 					next.color("black")
 					next.hideturtle()
@@ -181,8 +194,17 @@ while True:
 			except:
 				pass
 			
+			try:
+				if ball.color()[0] == next2.color()[0] and ball.distance(next2) < 25:
+					balls.remove(next2)
+					next2.color("black")
+					next2.hideturtle()
+					score += 40
+			except:
+				pass
+			
 			try:	
-				if ball.color()[0] == previous.color()[0]:
+				if ball.color()[0] == previous.color()[0] and ball.distance(previous) < 25:
 					balls.remove(previous)
 					previous.color("black")
 					previous.hideturtle()
@@ -190,10 +212,20 @@ while True:
 			except:
 				pass
 			
-			# Remove the ball from the screen 
-			ball.color("black")
-			ball.hideturtle()
-			balls.remove(ball)
+			try:	
+				if ball.color()[0] == previous2.color()[0] and ball.distance(previous2) < 25:
+					balls.remove(previous2)
+					previous2.color("black")
+					previous2.hideturtle()
+					score += 20
+			except:
+				pass
+			
+			# Remove the ball from the screen
+			if ball in balls: 
+				ball.color("black")
+				ball.hideturtle()
+				balls.remove(ball)
 			
 			# Change shooting color
 			shooting_ball.change_color()
@@ -213,6 +245,7 @@ while True:
 	
 	if game_over == True:
 		print("GAME OVER")
+		game.play_sound("sad_trombone.wav")
 		break
 	
 	if level_complete == True:
