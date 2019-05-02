@@ -7,17 +7,10 @@
 import spgl
 import math
 import random
-
-score = 0
+import time
 
 # Create Classes
-class Pen(spgl.Sprite):
-	def __init__(self, shape, color, x, y):
-		spgl.Sprite.__init__(self, shape, color, x, y)
-		self.write("Score: 0", align = "center", font = ("Comic Sans", 24, "normal"))
-		self.hideturtle()
-
-class RainbowPop(spgl.Game):
+class GalaxyCrash(spgl.Game):
 	def __init__(self, x, y, color, title, seconds):
 		spgl.Game.__init__(self, x, y, color, title, seconds)
 		
@@ -49,7 +42,7 @@ class Ball(spgl.Sprite):
         spgl.Sprite.__init__(self, shape, color, x, y)
         self.setheading(0)
     
-        colors = ["blue", "green", "purple", "orange"]
+        colors = ["dodgerblue", "green", "purple", "orange"]
         color = random.choice(colors)
         self.color(color)
         	
@@ -62,7 +55,7 @@ class Ball(spgl.Sprite):
 
     # Move the ball
     def move(self):
-    	self.forward(2)
+    	self.forward(3)
     	
     	# Check for collisions 
     	if self.is_near(self.xcor(), self.ycor(), 250, 200):
@@ -86,7 +79,7 @@ class Ball(spgl.Sprite):
 class ShootingBall(Ball):
 	def __init__(self, shape, color, x, y):
 		Ball.__init__(self, shape, color, x, y)
-		colors = ["blue", "green", "purple", "orange"]
+		colors = ["dodgerblue", "green", "purple", "orange"]
 		color = random.choice(colors)
 		self.color(color)
 		self.state = "home"
@@ -98,16 +91,19 @@ class ShootingBall(Ball):
 			self.state = "move"
 		
 	def change_color(self):
-		colors = ["blue"]
+		colors = []
 		
 		for ball in balls:
 			colors.append(ball.color()[0])
-			
-		color = random.choice(colors)
-		self.color(color)
+		
+		if len(colors) > 0:	
+			color = random.choice(colors)
+			self.color(color)
+		else:
+			self.color("blue")
 		
 	def move(self):	
-		self.forward(15)
+		self.forward(18)
 		
 		# Check for border collision
 		if self.xcor() > game.SCREEN_WIDTH / 2 or self.xcor() < game.SCREEN_WIDTH / -2:
@@ -124,16 +120,13 @@ class ShootingBall(Ball):
 		if self.state == "move":
 			self.move()
 
-# Create Functions
-
 # Initial Game setup
-game = RainbowPop(800, 600, "black", "Rainbow Pop by Elno", 0)
+game = GalaxyCrash(800, 600, "black", "Galaxy Crash by Elno", 5)
 game.frame = 1
 
 # Create Sprites
-scoreboard = Pen("square", "white", 0, 250)
 player = Player("arrow", "white", 0, 0)
-goal = Goal("square", "red", 150, -100)
+goal = Goal("black_hole.gif", "red", 150, -100)
 ball = Ball("circle", "white", -387, 200)
 shooting_ball = ShootingBall("circle", "white", 0, 0)
 
@@ -143,8 +136,10 @@ balls = [ball]
 canvas = spgl.turtle.getcanvas()
 canvas.bind('<Motion>', player.motion)
 
+# Set the Background Image
+game.set_background("galaxy2.gif")
+
 game_over = False
-level_complete = False
 
 while True:
 	# Call the game tick method
@@ -169,37 +164,40 @@ while True:
 				
 			try:
 				next2 = balls[index + 2]
-				game.play_sound("blop.wav")
 			except:
 				pass
 				
 			try:
 				previous = balls[index - 1]
-				game.play_sound("blop.wav")
 			except:
 				pass
 			
 			try:
 				previous2 = balls[index - 2]
-				game.play_sound("blop.wav")
 			except:
 				pass
 			
+			try:
+				if ball.color()[0] == next2.color()[0] and ball.distance(next2) < 50 and ball.color()[0] == next.color()[0]:
+					balls.remove(next2)
+					next2.color("black")
+					next2.hideturtle()
+			except:
+				pass
+				
+			try:	
+				if ball.color()[0] == previous2.color()[0] and ball.distance(previous2) < 50 and ball.color()[0] == previous.color()[0]:
+					balls.remove(previous2)
+					previous2.color("black")
+					previous2.hideturtle()
+			except:
+				pass
+				
 			try:
 				if ball.color()[0] == next.color()[0] and ball.distance(next) < 25:
 					balls.remove(next)
 					next.color("black")
 					next.hideturtle()
-					score += 20
-			except:
-				pass
-			
-			try:
-				if ball.color()[0] == next2.color()[0] and ball.distance(next2) < 25:
-					balls.remove(next2)
-					next2.color("black")
-					next2.hideturtle()
-					score += 40
 			except:
 				pass
 			
@@ -208,16 +206,6 @@ while True:
 					balls.remove(previous)
 					previous.color("black")
 					previous.hideturtle()
-					score += 20
-			except:
-				pass
-			
-			try:	
-				if ball.color()[0] == previous2.color()[0] and ball.distance(previous2) < 25:
-					balls.remove(previous2)
-					previous2.color("black")
-					previous2.hideturtle()
-					score += 20
 			except:
 				pass
 			
@@ -232,22 +220,24 @@ while True:
 			shooting_ball.goto(0,0)
 			shooting_ball.state = "home"
 		
-			# Add score
-			score += 10
-			scoreboard.clear()
-			scoreboard.write("Score: {}".format(score), align = "center", font = ("Comic Sans", 24, "normal"))
-		
 	# Add a new ball
-	if game.frame % 11 == 0 and game.frame <= 444:	
+	if game.frame % 7 == 0 and game.frame <= 355:	
 		ball = Ball("circle", "white", -387, 200)
 		balls.append(ball)
 	game.frame += 1
 	
+	# Game Over
 	if game_over == True:
-		print("GAME OVER")
-		game.play_sound("sad_trombone.wav")
+		game.set_background("game_over2.gif")
+		game.update_screen()
+		game.play_sound("explosion.wav")
+		time.sleep(2)
 		break
 	
-	if level_complete == True:
-		print("LEVEL COMPLETE")
-		continue
+	# You Win
+	if len(balls) == 0:
+		game.set_background("you_win2.gif")
+		game.update_screen()
+		game.play_sound("win.wav")
+		time.sleep(2)
+		break
